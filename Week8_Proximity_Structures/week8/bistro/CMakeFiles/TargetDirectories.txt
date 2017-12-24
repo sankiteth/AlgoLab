@@ -1,0 +1,3 @@
+/home/ankit/Desktop/Eth/ThirdSemester/AlgoLab/Week8_Proximity_Structures/week8/bistro/CMakeFiles/edit_cache.dir
+/home/ankit/Desktop/Eth/ThirdSemester/AlgoLab/Week8_Proximity_Structures/week8/bistro/CMakeFiles/bistro.dir
+/home/ankit/Desktop/Eth/ThirdSemester/AlgoLab/Week8_Proximity_Structures/week8/bistro/CMakeFiles/rebuild_cache.dir
