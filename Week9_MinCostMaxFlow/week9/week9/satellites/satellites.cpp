@@ -105,7 +105,7 @@ void testcase(){
 		}
 	}
 
-	// Find minimum vertex cover now, from maximum matching found above, using Konig algorithm
+	// Find minimum vertex cover now, from maximum matching found above, using Konig's algorithm
 	int left_visited = 0;
 	int right_visited = 0;
 

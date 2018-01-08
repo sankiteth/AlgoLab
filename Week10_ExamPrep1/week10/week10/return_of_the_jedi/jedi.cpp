@@ -29,9 +29,10 @@ typedef boost::graph_traits<Graph>::vertex_iterator    VertexIt;	// Vertex itera
 
 int white=0, gray=1, black=2;
 Graph G;
+int total_count = 0;
 
 int DFS_Visit(std::vector<std::vector<int> >& adj_list, int cur, int parent, std::vector<int>& stack, std::vector<int>& color,
-				WeightMap& weightmap){
+				std::vector<std::vector<int> >& edge_weights){
 	int ret = -1;
 	color[cur] = gray;
 	stack.push_back(cur);
@@ -39,7 +40,7 @@ int DFS_Visit(std::vector<std::vector<int> >& adj_list, int cur, int parent, std
 	for(auto it = adj_list[cur].begin(); it != adj_list[cur].end(); it++){
 		int val = *it;
 		if(color[val] == white){
-			ret = DFS_Visit(adj_list, val, cur, stack, color, weightmap);
+			ret = DFS_Visit(adj_list, val, cur, stack, color, edge_weights);
 			if(ret != -1){ // cycle detected, so immediately return
 				return ret;
 			}
@@ -49,10 +50,7 @@ int DFS_Visit(std::vector<std::vector<int> >& adj_list, int cur, int parent, std
 				if(i < stack.size()-1){
 					int u = stack[i+1];
 					int v = stack[i];
-					Edge edge;	
-					bool success;	
-					boost::tie(edge, success) = boost::edge(u, v, G);
-					max_wt_in_cycle = std::max(max_wt_in_cycle, weightmap[edge]);
+					max_wt_in_cycle = std::max(max_wt_in_cycle, edge_weights[u][v]);
 				}
 				if(stack[i] == val){
 					return max_wt_in_cycle;
@@ -67,20 +65,22 @@ int DFS_Visit(std::vector<std::vector<int> >& adj_list, int cur, int parent, std
 	return ret;
 }
 
-int DFS(std::vector<std::vector<int> >& adj_list, WeightMap& weightmap, int s, int n){
+int DFS(std::vector<std::vector<int> >& adj_list, std::vector<std::vector<int> >& edge_weights, int s, int n){
 	std::vector<int> stack;
 	std::vector<int> color(n, white);
-	int max_wt_in_cycle = DFS_Visit(adj_list, s, -1, stack, color, weightmap);
+	int max_wt_in_cycle = DFS_Visit(adj_list, s, -1, stack, color, edge_weights);
 
 	return max_wt_in_cycle;
 }
 
+// O(VE)
 void testcase(){
 	int n, source;
 	std::cin >> n >> source;
 
 	G = Graph(n);
 	WeightMap weightmap = boost::get(boost::edge_weight, G);
+	std::vector<std::vector<int> > edge_weights(n, std::vector<int>(n, -1));
 
 	for(int i=0; i<n-1; i++){
 		for(int j=1; j<n-i; j++){
@@ -91,6 +91,7 @@ void testcase(){
 			bool success;	
 			boost::tie(edge, success) = boost::add_edge(i, i+j, G);
 			weightmap[edge] = w;
+			edge_weights[i][i+j] = edge_weights[i+j][i] = w; // needed for fast look up of edge weights. The property maps are slow!!!!
 		}
 	}
 
@@ -103,7 +104,6 @@ void testcase(){
 		root_vertex(source-1)
 	);
 
-	std::vector<std::vector<int> > used_edges(n, std::vector<int>(n, 0)); // edges used by the MST
 	std::vector<std::vector<int> > adj_list(n, std::vector<int>());       // adj list representation of MST
 
 	long total_wt = 0;
@@ -115,8 +115,6 @@ void testcase(){
 		if(i == predmap[i]){ // root of the tree
 			continue;
 		}
-		used_edges[i][predmap[i]] = 1;
-		used_edges[predmap[i]][i] = 1;
 
 		adj_list[i].push_back(predmap[i]);
 		adj_list[predmap[i]].push_back(i);
@@ -128,11 +126,11 @@ void testcase(){
 		int source = boost::source(*edge_beg, G);
 		int target = boost::target(*edge_beg, G);
 
-		if(used_edges[source][target] == 0){ // edge not used in MST
+		if(predmap[source]!=target && predmap[target]!=source){ // edge not used in MST
 			adj_list[source].push_back(target); // put the edge in the MST
 			adj_list[target].push_back(source);
 
-			int max_wt_in_cycle = DFS(adj_list, weightmap, source, n);
+			int max_wt_in_cycle = DFS(adj_list, edge_weights, source, n);
 
 			long new_min_wt_ST = total_wt - max_wt_in_cycle + weightmap[*edge_beg];
 			min_wt_ST = std::min(min_wt_ST, new_min_wt_ST);
@@ -143,6 +141,111 @@ void testcase(){
 
 			adj_list[source].pop_back(); // remove the edges from the MST
 			adj_list[target].pop_back();
+		}
+	}
+
+	std::cout << min_wt_ST << std::endl;
+}
+
+int DFS_max_edge_visit(std::vector<std::vector<int> >& adj_list, int source, int cur, int prev, 
+	std::vector<std::vector<int> >& max_weight_edge, std::vector<int>& color, std::vector<std::vector<int> >& edge_weights){
+	color[cur] = gray;
+	if(prev != -1){
+		int w = edge_weights[prev][cur];
+
+		if(w > max_weight_edge[source][prev]){
+			max_weight_edge[source][cur] = w;
+			max_weight_edge[cur][source] = w;
+		} else {
+			max_weight_edge[source][cur] = max_weight_edge[source][prev];
+			max_weight_edge[cur][source] = max_weight_edge[source][prev];
+		}
+	}
+
+	for(auto it = adj_list[cur].begin(); it != adj_list[cur].end(); it++){
+		int val = *it;
+		if(color[val] == white){
+			DFS_max_edge_visit(adj_list, source, val, cur, max_weight_edge, color, edge_weights);
+		}
+	}
+
+	color[cur] = black;
+}
+
+void DFS_max_edge(std::vector<std::vector<int> >& adj_list, std::vector<std::vector<int> >& edge_weights,
+			 std::vector<std::vector<int> >& max_weight_edge, int n){
+	for(int i=0; i<n-1; i++){
+		std::vector<int> color(n, white);
+		DFS_max_edge_visit(adj_list, i, i, -1, max_weight_edge, color, edge_weights);
+	}
+}
+
+// O(V^2 + E)
+void approach_2(){
+	int n, source;
+	std::cin >> n >> source;
+
+	G = Graph(n);
+	WeightMap weightmap = boost::get(boost::edge_weight, G);
+	std::vector<std::vector<int> > edge_weights(n, std::vector<int>(n, -1));
+
+	for(int i=0; i<n-1; i++){
+		for(int j=1; j<n-i; j++){
+			int w; 
+			std::cin >> w;
+
+			Edge edge;	
+			bool success;	
+			boost::tie(edge, success) = boost::add_edge(i, i+j, G);
+			weightmap[edge] = w;
+			edge_weights[i][i+j] = edge_weights[i+j][i] = w; // needed for fast look up of edge weights. The property maps are slow!!!!
+		}
+	}
+
+	std::vector<Vertex> predmap(n); // Exterior Property Map
+	std::vector<int> distmap(n);    // Exterior Property Map
+
+	boost::prim_minimum_spanning_tree(G, &predmap[0],
+		boost::distance_map(boost::make_iterator_property_map(			
+				distmap.begin(), boost::get(boost::vertex_index, G))).
+		root_vertex(source-1)
+	);
+
+	std::vector<std::vector<int> > adj_list(n, std::vector<int>());       // adj list representation of MST
+
+	long total_wt = 0;
+	for(int i=0; i<n; i++){
+		total_wt += distmap[i]; // total weight of the minimum spanning tree
+	}
+
+	for(int i=0; i<n; i++){
+		if(i == predmap[i]){ // root of the tree
+			continue;
+		}
+
+		adj_list[i].push_back(predmap[i]);
+		adj_list[predmap[i]].push_back(i);
+	}
+
+	std::vector<std::vector<int> > max_weight_edge(n, std::vector<int>(n, -1));
+	DFS_max_edge(adj_list, edge_weights, max_weight_edge, n);
+
+
+	long min_wt_ST = INF;
+	EdgeIt edge_beg, edge_end;
+	for(boost::tie(edge_beg, edge_end) = boost::edges(G); edge_beg != edge_end; ++edge_beg){
+		int source = boost::source(*edge_beg, G);
+		int target = boost::target(*edge_beg, G);
+
+		if(predmap[source]!=target && predmap[target]!=source){ // edge not used in MST
+			int max_wt_in_cycle = max_weight_edge[source][target];
+			long new_min_wt_ST = total_wt - max_wt_in_cycle + weightmap[*edge_beg];
+
+			min_wt_ST = std::min(min_wt_ST, new_min_wt_ST);
+
+			if(new_min_wt_ST == total_wt){ // already a spanning tree with total weight equal to MST
+				break;
+			}
 		}
 	}
 
