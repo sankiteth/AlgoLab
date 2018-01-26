@@ -57,6 +57,16 @@ unsigned int compatible_tiles(unsigned int mask, int cur_row){
 	return num_tiles;
 }
 
+/*
+For a given mask, a bit = 1 means the corresponding cell could be used to fit a tile, bit = 0 means otherwise.
+Intuition for the recursion: Consider a particular mask.
+Either all the bits in the mask are covered by tiles => negate the current mask, and recurse one row above.
+
+or,
+
+Not all the bits in the mask are covered by tiles => There is at least one bit that is not covered by any tile.
+Unset all the set bits one by one, and recurse for the same row.
+*/
 lli f(int row, unsigned int mask){
 	if(memo[row][mask] != -1){
 		return memo[row][mask];
@@ -68,7 +78,6 @@ lli f(int row, unsigned int mask){
 	}
 
 	if(mask == 0){
-		lli max_val = MINUS_INF;
 		return f(row-1, limit-1); // we do not use the new row at all. Return the best result till previous row
 	}
 

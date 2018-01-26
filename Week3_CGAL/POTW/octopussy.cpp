@@ -48,7 +48,7 @@ void octopussy()
 	{
 		int t_i;
 		cin >> t_i;
-		t_numChild.push_back(make_pair(t_i, 0));
+		t_numChild.push_back(make_pair(t_i, 0)); // num of diffused nodes in subtree rooted at current node, excluding current node 
 		t_ind.push_back(make_pair(i, t_i));
 	}
 
@@ -58,7 +58,7 @@ void octopussy()
 		t_numChild[i].second = 2 + (t_numChild[2*i+1].second * 2);
 	}
 
-	sort(t_ind.begin(), t_ind.end(), 
+	sort(t_ind.begin(), t_ind.end(), // sort according to explosion times in ascending order
 			[] (pair<int, int> x, pair<int, int> y) -> bool
 			{
 				return x.second <= y.second;
@@ -66,11 +66,11 @@ void octopussy()
 		);
 
 	int time = 1;
-	bool visited[n] = {false};
+	bool visited[n] = {false}; // marking a node as visited after diffusing it
 
 	for (int i = 0; i < n; ++i)
 	{
-		int cur_node = t_ind[i].first;
+		int cur_node = t_ind[i].first; // index of current node
 		if( !visited[cur_node] )
 		{
 			visited[cur_node] = true;

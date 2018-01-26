@@ -27,6 +27,8 @@ int floor_to_double(const SolT& x)
     return (int)a; 
   }
 
+  // n = number of nutrients
+  // m = number of foods
   void testcase(int n, int m) {
     int min[n], max[n];
     for (int i=0; i < n; ++i){

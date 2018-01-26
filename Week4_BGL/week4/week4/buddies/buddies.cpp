@@ -59,7 +59,7 @@ void testcases()
 
 	bool success = true;
 	for(int i = 0; i < n; ++i)
-		if(mate[i] == NULL_VERTEX) 
+		if(mate[i] == NULL_VERTEX)
 		{
 			success = false;
 			break;
@@ -68,7 +68,7 @@ void testcases()
 	std::cout << (success ? "not optimal" : "optimal") << '\n';
 }
 
-int main() 
+int main()
 {
 	std::ios_base::sync_with_stdio(false);
 	int T;

@@ -106,7 +106,7 @@ int main(){
 	int c; std::cin >> c;
 	for (int i = 0; i < c; ++i)
 	{
-		find_cover();		
+		find_cover();
 	}
 
 	return 0;

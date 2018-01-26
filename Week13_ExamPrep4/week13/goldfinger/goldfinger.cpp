@@ -6,7 +6,7 @@
 #include <vector>
 #include <utility>
 
-typedef CGAL::Gmpq ET;
+typedef double ET;
 typedef CGAL::Quadratic_program<ET> Program;
 typedef CGAL::Quadratic_program_solution<ET> Solution;
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;

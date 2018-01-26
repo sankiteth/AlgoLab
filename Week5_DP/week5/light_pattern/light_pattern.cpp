@@ -30,8 +30,8 @@ int f(int g, bool prev, int level)
 
 	if (prev == true)
 	{
-		memo[1][g] = min(f(g-1, true, level+2) + ops_with_group_flip,
-										f(g-1, false, level+2) + 2 + ops_with_group_flip
+		memo[1][g] = min(f(g-1, true, level+2)      + ops_with_group_flip,
+						 f(g-1, false, level+2) + 2 + ops_with_group_flip // flip till g group, then again flip till (g-1) 
 									); 
 	}
 	else

@@ -11,13 +11,19 @@
 using namespace std;
 using namespace boost;
 
- struct edge_component_t
-  {
-    enum
-    { num = 555 };
-    typedef edge_property_tag kind;
-  }
-  edge_component;
+/*struct edge_component_t
+{
+enum
+{ num = 555 };
+typedef edge_property_tag kind;
+}
+edge_component;*/
+
+// Define custom interior edge property
+namespace boost {
+	enum edge_component_t { edge_component = 216 }; // arbitrary, unique id
+	BOOST_INSTALL_PROPERTY(edge, component);
+}
 
 typedef adjacency_list<vecS, // out-edges 
 		vecS, // vertices
@@ -60,7 +66,7 @@ void important_bridges()
 		num_edges_in_comp[component[*ei]] += 1;
 	}
 
-	vector<pair<int, int>> bridges;
+	vector<pair<int, int> > bridges;
 	int num_bridges = 0;
 	for (tie(ei, ei_end) = edges(g); ei != ei_end; ++ei)
 	{

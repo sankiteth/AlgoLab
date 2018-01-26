@@ -314,8 +314,6 @@ void dfs(int u, const vector<vector<int> >& tree, vector<int>& path,
 		dfs(v,tree,path,query,result,age);
 		path.pop_back(); // maintain path invariant
 	}
-
-
 }
 
 void evolution_mlogn()

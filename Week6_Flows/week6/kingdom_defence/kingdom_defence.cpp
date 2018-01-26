@@ -183,12 +183,6 @@ void testcase_1()
 		d_sum += d[i];
 	}
 
-	if (d_sum > g_sum)
-	{
-		std::cout << "no" << std::endl;
-		return;
-	}
-
 	incoming_sum = std::vector<int>(l+4, 0);
 	outgoing_sum = std::vector<int>(l+4, 0);
 	mini_sum = 0;
@@ -197,7 +191,7 @@ void testcase_1()
 	for (int i = 0; i < l; ++i)
 	{
 		add_edge(eaG, s_supply, i, 0, g[i]); // For supply
-		add_edge(eaG, i, t_demand, d[i], g_sum+d[i]); // For demand
+		add_edge(eaG, i, t_demand, d[i], INF); // For demand
 	}
 
 	int mini, maxi;
@@ -205,6 +199,12 @@ void testcase_1()
 	{
 		int f, t; std::cin >> f >> t >> mini >> maxi;
 		add_edge(eaG, f, t, mini, maxi);
+	}
+
+	if (d_sum > g_sum)
+	{
+		std::cout << "no" << std::endl;
+		return;
 	}
 
 	for (int i = 0; i <= l+3; ++i) // make source and sink for min and max capacities

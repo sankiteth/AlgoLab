@@ -74,30 +74,30 @@ void func()
 			i++;
 		}
 
-for(vector<int>::iterator it=start_wrapped.begin(); it != start_wrapped.end(); ++it)
-{
-		int wrapped_sol = 1;
-		int limit = jedi[*it].first;
-		farthest  = jedi[*it].second;
-
-		for (int i = (*it) + 1; i <= n; ++i)
+		for(vector<int>::iterator it=start_wrapped.begin(); it != start_wrapped.end(); ++it)
 		{
-			// consider only unwrapped jedis
-			if (jedi[i].first > jedi[i].second)
-			{
-				continue;
-			}
+				int wrapped_sol = 1;
+				int limit = jedi[*it].first;
+				farthest  = jedi[*it].second;
 
-			// compute best solution without considering wrapped around jedis
-			if (jedi[i].first > farthest && jedi[i].second < limit)
-			{
-				wrapped_sol++;
-				farthest = jedi[i].second;
-			}
+				for (int i = (*it) + 1; i <= n; ++i)
+				{
+					// consider only unwrapped jedis
+					if (jedi[i].first > jedi[i].second)
+					{
+						continue;
+					}
+
+					// compute best solution without considering wrapped around jedis
+					if (jedi[i].first > farthest && jedi[i].second < limit)
+					{
+						wrapped_sol++;
+						farthest = jedi[i].second;
+					}
+				}
+
+				sol = max(sol, wrapped_sol);
 		}
-
-		sol = max(sol, wrapped_sol);
-}
 	}
 
 	cout << sol << endl;

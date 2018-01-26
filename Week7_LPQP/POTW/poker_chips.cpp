@@ -18,7 +18,7 @@ vector<vector<vector<int> > > first_color;
 int num_colors = (1<<10) + 1;
 
 // For all the subsets of the set of chips from the topmost layer of all stacks, recurse.  
-int f(vector<int> m)
+int f() // m argument, but made global
 {
 	if (memo.find(m) != memo.end())
 	{
@@ -70,21 +70,25 @@ int f(vector<int> m)
 			continue;
 		}
 
-		vector<int> new_m(m);
 		for (int i = 0; i < subset.size(); ++i)
 		{
-			new_m[ subset[i] ] -= 1;
+			m[ subset[i] ] -= 1;
 		}
 
 		//cout << "subset size:" << subset.size() << endl;
 		if (subset.size() > 1)
 		{
-			maxi = max(maxi, ( 1<<(subset.size()-2) ) + f(new_m));
+			maxi = max(maxi, ( 1<<(subset.size()-2) ) + f());
 		}
 		else
 		{
-			maxi = max(maxi, f(new_m));
-		}	
+			maxi = max(maxi, f());
+		}
+
+		for (int i = 0; i < subset.size(); ++i)
+		{
+			m[ subset[i] ] += 1;
+		}
 	}
 
 	//cout << "returned:" << maxi << endl;
@@ -181,7 +185,7 @@ void testcase()
 
 	// num of colors, stacks, height in particular stack
 	// [i,j,k] gives the first index of element in jth stack with color i and height less than or 
-	// equal to j  
+	// equal to k
 	first_color = vector<vector<vector<int> > >(num_colors, vector<vector<int> >(n, vector<int>(max_height, -1)));
 	c = vector<vector<int> >(n, vector<int>());
 
@@ -228,7 +232,7 @@ void testcase()
 		}
 	}
 
-	cout << g(m) << endl;
+	cout << f() << endl;
 }
 
 int main()

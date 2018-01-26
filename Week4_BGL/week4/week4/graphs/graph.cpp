@@ -97,7 +97,7 @@ void func()
     	sum += distmap[i];
     }
 
-    // Wrong!!! The farthest node in MST does not guarantee farthest node in the grpah!!!
+    // Wrong!!! The farthest node in MST does not guarantee farthest node in the graph!!!
     // Find farthest node from node 0 using Dijkstra
     
 	dijkstra_shortest_paths(g, 0,

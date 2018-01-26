@@ -43,13 +43,13 @@ void great_game()
 		int worst_next;
 		for (auto it = trans[i].begin(); it != trans[i].end(); ++it)
 		{
-			if (1 + bad_dp[*it].first < best_dist)
+			if (1 + bad_dp[*it].first < best_dist) // best move considering the worst case scenario for the next move
 			{
 				best_dist = 1 + bad_dp[*it].first;
 				best_next = *it;
 			}
 
-			if (1 + good_dp[*it].first > worst_dist)
+			if (1 + good_dp[*it].first > worst_dist) // worst move considering the best case scenario for the next move 
 			{
 				worst_dist = 1 + good_dp[*it].first;
 				worst_next = *it;
