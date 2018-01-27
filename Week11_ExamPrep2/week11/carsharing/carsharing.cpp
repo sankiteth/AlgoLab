@@ -121,7 +121,7 @@ void testcase(){
 
 	// Run the min cost max flow algorithm.
 	successive_shortest_path_nonnegative_weights(G, v_source, v_target);
-	int flow = 0; // Iterate over all edges leaving the source to sum up the flow.
+	int flow = 0; // Iterate over all edges leaving the source to sum up the flow. Always equal to total number of cars by design!!
 	OutEdgeIt e, eend;
 	for(tie(e, eend) = out_edges(vertex(v_source,G), G); e != eend; ++e) {
 		flow += capacitymap[*e] - rescapacitymap[*e];

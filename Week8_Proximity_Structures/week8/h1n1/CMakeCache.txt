@@ -195,7 +195,7 @@ h1n1__SOURCE_DIR:STATIC=/home/ankit/Desktop/Eth/ThirdSemester/AlgoLab/Week8_Prox
 Boost_DEBUG-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CGAL_Boost_USE_STATIC_LIBS
 CGAL_Boost_USE_STATIC_LIBS-ADVANCED:INTERNAL=1
-CGAL_EXECUTABLE_TARGETS:INTERNAL=h1n1
+CGAL_EXECUTABLE_TARGETS:INTERNAL=h1n1;h1n1
 //ADVANCED property for variable: CMAKE_AR
 CMAKE_AR-ADVANCED:INTERNAL=1
 //This is the directory where this CMakeCache.txt was created

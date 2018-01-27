@@ -58,9 +58,9 @@ void testcase(){
 	for(int i=1; i<=n; i++){ // defenders
 		for(int j=1; j<=m; j++){ // attackers
 			dp[i][j] = max(dp[i][j], dp[i-1][j]); // ith defender not used
-			if(sum_ind[i] != -1){
+			if(sum_ind[i] != -1){                 // ith defender used
 				dp[i][j] = max(dp[i][j], dp[sum_ind[i]-1][j-1] + (i - sum_ind[i] + 1) ); // the partition with i used
-				dp[i][j] = max(dp[i][j], dp[sum_ind[i]-1][j]); // the partition with i not used
+				//dp[i][j] = max(dp[i][j], dp[sum_ind[i]-1][j]); // the partition with i not used
 			}
 		}
 	}
