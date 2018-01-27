@@ -47,7 +47,7 @@ unsigned int compatible_tiles(unsigned int mask, int cur_row){
 
 		if(flr[cur_row][i] == 1 && flr[cur_row][i+1] == 1 &&
 			flr[cur_row-1][i] == 1 && flr[cur_row-1][i+1] == 1){ // floor plan permits 1 tile
-			if( ((mask & bits0) != 0) && ((mask & bits1) != 0) ){
+			if( ((mask & bits0) != 0) && ((mask & bits1) != 0) ){// bits in mask set
 				num_tiles++;
 				i++; // next col used in current tile
 			}

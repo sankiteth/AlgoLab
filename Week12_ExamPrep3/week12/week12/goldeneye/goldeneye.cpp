@@ -92,6 +92,7 @@ void handle_missions() {
 			ufa.union_set(ai->u, ai->v);
 	}
 
+	// This works because the edges are sorted in increasing order according to length
 	if (ai != edges.begin() && (ai-1)->sql > a) 
 		a = (ai-1)->sql;
 	if (bi != edges.begin() && (bi-1)->sql > b) 

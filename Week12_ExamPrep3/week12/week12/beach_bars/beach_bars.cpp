@@ -83,7 +83,6 @@ void testcase(){
 
 	int first = true;
 	cout << max_num << " " << min_max_dist << endl;
-	int prev_centre_1 = MINUS_INF, prev_centre_2 = MINUS_INF;
 	for(auto it = max_bars.begin(); it!=max_bars.end(); it++){
 		l = get<0>(*it);
 		h = get<1>(*it);
@@ -97,7 +96,7 @@ void testcase(){
 			centre_2 = centre_1 + 1;
 		}
 
-		if(dist == min_max_dist && centre_1 != prev_centre_1){
+		if(dist == min_max_dist){
 			if(first){
 				cout << centre_1;
 				if(centre_2 != MINUS_INF){
@@ -112,8 +111,6 @@ void testcase(){
 				}
 			}
 		}
-
-		prev_centre_1 = centre_1;
 	}
 
 	cout << endl;
