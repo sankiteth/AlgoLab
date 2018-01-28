@@ -17,11 +17,13 @@ CGAL/QP_models.h
 -
 CGAL/QP_functions.h
 -
-CGAL/Gmpz.h
+CGAL/Gmpq.h
 -
 math.h
 -
 algorithm
+-
+CGAL/Gmpz.h
 -
 
 /usr/local/include/CGAL/Algebraic_extension_traits.h

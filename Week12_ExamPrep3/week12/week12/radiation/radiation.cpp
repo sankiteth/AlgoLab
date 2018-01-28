@@ -5,17 +5,18 @@
 #include <CGAL/basic.h>
 #include <CGAL/QP_models.h>
 #include <CGAL/QP_functions.h>
-#include <CGAL/Gmpz.h>
+#include <CGAL/Gmpq.h>
 #include <math.h>
 #include <algorithm>
-
-#define MAX_D 30
+#include <CGAL/Gmpz.h>
 
 // choose exact integral type
 typedef CGAL::Gmpz ET;
 
+#define MAX_D 30
+
 // program and solution types
-typedef CGAL::Quadratic_program<int> Program;
+typedef CGAL::Quadratic_program<ET> Program;
 typedef CGAL::Quadratic_program_solution<ET> Solution;
 
 struct point{
@@ -24,32 +25,70 @@ struct point{
 	point(){}
 };
 
-inline bool operator==(const point& e, const point& f) 
-	{ return e.x == f.x && e.y == f.y && e.z && f.z; }
+int h, t;
+std::vector<point> H;
+std::vector<point> T;
 
-bool contains(std::vector<point>& v, point p){
-	for(int i=0; i<v.size(); i++){
-		if(v[i].x == p.x && v[i].y == p.y && v[i].z == p.z){
-			return true;
+bool solve_lp(int degree){
+	Program lp (CGAL::LARGER, false, 0, false, 0);
+
+	int var, delta;
+	for(int b=0; b<h; b++){ // one constraint each for a healthy cell
+		var = 0;
+		for (int i = 0; i <= degree; i++) {
+  			for (int j = 0; j <= degree; j++) {
+    			for (int k = 0; k <= degree; k++) {
+      				if (i+j+k > degree){ 
+      					break;
+      				}
+
+      				double value = pow(H[b].x, i) * pow(H[b].y, j) * pow(H[b].z, k);
+      				lp.set_a(var, b, ET(value));
+      				var++;
+    			}
+  			}
 		}
+
+		delta = var;
+		lp.set_b (b, delta);
 	}
 
-	return false;
-}
+	for(int r=0; r<t; r++){ // one constraint each for a tumor cell
+		var = 0;
+		for (int i = 0; i <= degree; i++) {
+  			for (int j = 0; j <= degree; j++) {
+    			for (int k = 0; k <= degree; k++) {
+      				if (i+j+k > degree){ 
+      					break;
+      				}
 
-bool dummy(int degree, int ans){
-	if(degree >= ans){
-		return true;
+      				double value = pow(T[r].x, i) * pow(T[r].y, j) * pow(T[r].z, k);
+      				lp.set_a(var, r+h, ET(value));
+      				var++;
+    			}
+  			}
+		}
+
+		lp.set_b (r+h, 0);
+		lp.set_r(r+h, CGAL::SMALLER);
 	}
-	else{
-		return false;
-	}
+
+	// objective function: -delta (the solver minimizes)
+	lp.set_c(delta, -1);
+	// enforce a bounded problem:
+	lp.set_u (delta, true, 1);
+
+	CGAL::Quadratic_program_options options;
+	options.set_pricing_strategy(CGAL::QP_BLAND);
+	Solution s = CGAL::solve_linear_program(lp, ET(), options);
+
+	return s.is_optimal() && (-s.objective_value() > 0);
 }
 
 void testcase(){
-	int h, t; std::cin >> h >> t;
-	std::vector<point> H(h);
-	std::vector<point> T(t);
+	std::cin >> h >> t;
+	H = std::vector<point>(h);
+	T = std::vector<point>(t);
 
 	for(int i=0; i<h; i++){
 		int x, y, z;
@@ -57,105 +96,47 @@ void testcase(){
 		H[i] = point(x, y, z);
 	}
 
-	bool overlap = false;
 	for(int i=0; i<t; i++){
 		int x, y, z;
 		std::cin >> x >> y >> z;
 		T[i] = point(x, y, z);
+	}
 
-		if(contains(H, T[i])){
-			overlap = true;
+	int low=0, high=MAX_D;
+	int sol_degree = -1;
+
+	// Find first point where solves successfully
+	while(low <= high){
+    	if (solve_lp(low)) {
+			sol_degree = low;
+      		high = low;
+      		break;
+    	} 
+    	else {
+      		low = std::max(1, 2 * low);
+    	}
+  	}
+
+  	if (low != 2 && low != 1 && low != 0) { // if solved at any of these 3 points, then done
+  		low = int(low / 2) + 1;
+		while(low <= high){ // binary search for the smallest degree polynomial
+			int mid = (low + high)/2;
+	  		if(solve_lp(mid)){
+	  			sol_degree = mid;
+	  			high = mid-1;
+	  			//std::cout << "high=" << high << std::endl;
+	  		} else {
+	  			low = mid + 1;
+	  			//std::cout << "low=" << low << std::endl;
+	  		}
 		}
 	}
 
-	if(overlap){
-		std::cout << "Impossible!\n";
-		return;
-	}
-
-	if(h==0 || t==0){
-		std::cout << "1\n";
-		return;
-	}
-
-	/*for(int i=0; i<h; i++){
-		std::cout << H[i].x << H[i].y << H[i].z << std::endl;
-	}
-
-	for(int i=0; i<t; i++){
-		std::cout << T[i].x << T[i].y << T[i].z << std::endl;
-	}*/
-
-	int delta;
-	int low=1, high=MAX_D+1;
-	while(low<high){ // binary search for the smallest degree polynomial
-
-		int degree = (low + high)/2;
-		std::cout << "degree=" << degree << std::endl;
-		Program lp (CGAL::SMALLER, false, 0, false, 0);
-
-		int var;
-		for(int b=0; b<h; b++){ // one constraint each for a healthy cell
-			var = 0;
-			for(int d=0; d <= degree; d++){      		// total degree of the polynomial
-				for(int i=0; i <= d; i++){       	    // power of x = i
-					int powers_left = d-i;
-					for(int j=0; j <= powers_left; j++){    // power of y = j, power of z = power_left-j
-						// set up <= constraint for point outside polynomial(ex, d=1):
-	    				//   alpha x + beta y + eta z + gamma >= delta
-						lp.set_a (var, b, -1 * (int)pow(H[b].x, i) * (int)pow(H[b].y, j) * (int)pow(H[b].z, powers_left-j) );
-						var++;
-					}
-				}
-			}
-
-			delta = var;
-			lp.set_a (var, b, 1);    // delta
-			lp.set_b (b, 0);
-		}
-
-		for(int r=0; r<t; r++){ // one constraint each for a tumor cell
-			var = 0;
-			for(int d=0; d <= degree; d++){      		// total degree of the polynomial
-				for(int i=0; i <= d; i++){       	    // power of x = i
-					int powers_left = d-i;
-					for(int j=0; j <= powers_left; j++){    // power of y = j, power of z = power_left-j
-						// set up <= constraint for point inside polynomial(ex, d=1):
-	    				//  alpha x + beta y + eta z + gamma <= 0  
-						lp.set_a (var, r+h, (int)pow(T[r].x, i) * (int)pow(T[r].y, j) * (int)pow(T[r].z, powers_left-j) );
-						var++;
-					}
-				}
-			}
-
-			lp.set_b (r+h, 0);
-		}
-
-		// objective function: -delta (the solver minimizes)
-  		lp.set_c(delta, -1);
-  		// enforce a bounded problem:
-  		lp.set_u (delta, true, 1);
-
-  		// solve the program, using ET as the exact type
-  		Solution s = CGAL::solve_linear_program(lp, ET());
-  		//assert (s.solves_linear_program(lp));
-
-
-  		//std::cout << s.objective_value() << std::endl;
-
-		// check optimality
-  		if (s.is_optimal() && (s.objective_value() < 0)) {
-  			high = degree;
-  		} else {
-  			low = degree + 1;
-  		}
-	}
-
-	if(high<=MAX_D){
-		std::cout << high << std::endl;
+	if(sol_degree != -1){
+		std::cout << sol_degree << std::endl;
 	}
 	else{
-		std::cout << "Impossible!\n";
+		std::cout << "Impossible!" << std::endl;
 	}
 
 }
