@@ -14,7 +14,7 @@ using namespace std;
 
 unordered_map <pair<int, int>, bool, boost::hash<pair<int, int> > > memo;
 int num, rem, divisor;
-vector<int> heights(num);
+vector<int> heights;
 
 // subset sum with sum modulo
 bool f(int i, int j){

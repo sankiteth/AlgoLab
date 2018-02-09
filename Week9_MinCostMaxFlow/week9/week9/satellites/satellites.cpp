@@ -84,7 +84,7 @@ void testcase(){
 
 	long flow = boost::push_relabel_max_flow(G, source, target);
 
-	// BFS to find vertices reachable from source vertex in residual graph
+	/*// BFS to find vertices reachable from source vertex in residual graph
 	std::vector<int> vis(g+s+2, false); // visited flags
 	std::queue<int> Q;
 	vis[source] = true; // Mark the source as visited
@@ -103,7 +103,7 @@ void testcase(){
 			vis[v] = true;
 			Q.push(v);
 		}
-	}
+	}*/
 
 	// Find minimum vertex cover now, from maximum matching found above, using Konig's algorithm
 	int left_visited = 0;
@@ -163,14 +163,13 @@ void testcase(){
 
 	std::cout << g - left_visited << " " << right_visited << std::endl;
 
-	bool first = true;
-	for(int i=0; i<g; i++){
+	for(int i=0; i<g; i++){ // unvisited in left
 		if(!new_vis[i]){
 			std::cout << i << " ";
 		}
 	}
 
-	for(int i=0; i<s; i++){
+	for(int i=0; i<s; i++){ // visited in right
 		if(new_vis[i+g]){
 			std::cout << i << " ";
 		}

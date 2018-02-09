@@ -8,6 +8,7 @@ typedef CGAL::Exact_predicates_exact_constructions_kernel K;
 typedef K::Point_2 P;
 typedef K::Segment_2 S;
 typedef K::Ray_2 R;
+typedef std::result_of<K::Intersect_2(R, S)>::type IT;
 
 LLI floor_to_double(const K::FT& x)
 {
@@ -21,13 +22,26 @@ LLI floor_to_double(const K::FT& x)
   
 }
 
+// clip/set target of s to o
+void shorten_segment(K::Segment_2& s, const IT& o) {
+	if (const P* p = boost::get<P>(&*o))
+		s = S(s.source(), *p);
+	else if (const S* t = boost::get<S>(&*o))
+		// select endpoint of *t closer to s.source()
+		if (CGAL::collinear_are_ordered_along_line( s.source(), t->source(), t->target() ))
+			s = S(s.source(), t->source());
+		else
+			s = S(s.source(), t->target());
+	else
+		throw std::runtime_error("Strange segment intersection.");
+}
+
 int main()
 {
 	std::ios_base::sync_with_stdio(false);
 
-	int n; std::cin >> n;
-
-	while(n > 0)
+	int n;
+	while((std::cin >> n) && n > 0)
 	{
 		LLI x, y, a, b;
 		std::cin >> x >> y >> a >> b;
@@ -38,85 +52,38 @@ int main()
 		bool does_intersect = false;
 		P min_p;
 		K::FT dist_so_far;
-
-		int i;
-		for (i = 0; i < n; ++i)
+		std::vector<S> segs;
+		for (int i = 0; i < n; ++i)
 		{
 			LLI r, s, t, u;
 			std::cin >> r >> s >> t >> u;
-			P p1(r, s);
-			P p2(t, u);
+			segs.push_back(S( P(r, s), P(t, u)));
+		}
 
-			S seg = S(p1, p2);
+		std::random_shuffle(segs.begin(), segs.end());
+		S clipped_ray(ray.source(), ray.source());
 
-			if (CGAL::do_intersect(ray, seg) )
-			{
-				auto o = CGAL::intersection(ray, seg);
-
-        		if (const P* op = boost::get<P>(&*o))
-	  			{
-	  				// For the first time
-	                if (!does_intersect)
-	                {
-	                	does_intersect = true;
-	                	dist_so_far = CGAL::squared_distance(source, *op);
-	                	min_p = *op;
-	                }
-
-	                else if (CGAL::squared_distance(source, *op) < dist_so_far )
-	                {
-	                	dist_so_far = CGAL::squared_distance(source, *op);
-	                	min_p = *op;
-	                }
-	  			}
-                else if (const S* os = boost::get<S>(&*o))
-                {
-                	K::FT dist_p1 = CGAL::squared_distance(source, p1);
-					K::FT dist_p2 = CGAL::squared_distance(source, p2);
-
-					K::FT dist = ((dist_p1 <= dist_p2) ? dist_p1 : dist_p2);
-
-					// For the first time
-	                if(!does_intersect)
-	                {
-						does_intersect = true;
-						dist_so_far = dist_p1;
-						min_p = p1;
-
-						if(dist_p2 < dist_so_far)
-						{
-							dist_so_far = dist_p2;
-							min_p = p2;
-						}
-
-					}
-					else
-					{
-						if(dist_p1 < dist_so_far)
-						{
-							dist_so_far = dist_p1;
-							min_p = p1;
-						}
-
-						if(dist_p2 < dist_so_far)
-						{
-							dist_so_far = dist_p2;
-							min_p = p2;
-						}
-					}
-                }        
+		// find some segment hit by ray
+		std::size_t i = 0;
+		for (; i < n; ++i){
+			if (CGAL::do_intersect(segs[i], ray)) {
+				shorten_segment(clipped_ray, CGAL::intersection(segs[i], ray));
+				break;
 			}
 		}
 
-		if (does_intersect)
-		{
-			std::cout << floor_to_double(min_p.x()) << " " << floor_to_double(min_p.y()) << std::endl;
+		if (i == n) { 
+			std::cout << "no\n"; 
+			continue;
 		}
-		else
-		{
-			std::cout << "no" << std::endl;
+
+		// check remaining segments against rc
+		while (++i < n){
+			if (CGAL::do_intersect(segs[i], clipped_ray)){
+				shorten_segment(clipped_ray, CGAL::intersection(segs[i], ray)); // not clipped_ray!
+			}
 		}
-		
-		std::cin >> n;
+	
+		std::cout << floor_to_double(clipped_ray.target().x()) << " " << floor_to_double(clipped_ray.target().y()) << "\n";
 	}
 }

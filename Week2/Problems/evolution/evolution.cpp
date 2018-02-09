@@ -280,7 +280,7 @@ void evolution_1()
 
 // binary search:
 // find largest index i s.t. p(i) := age[path[i]] <= b is true
-int binary(int b, const vector<int>& path, const vector<int>& age)
+/*int binary(int b, const vector<int>& path, const vector<int>& age)
 {
 	// establish invariant
 	int l = -1; // l is largest index where we know p(l) is false
@@ -293,6 +293,24 @@ int binary(int b, const vector<int>& path, const vector<int>& age)
 		else l = m;
 	}
 	return path[r];
+}*/
+
+int binary(int b, const vector<int>& path, const vector<int>& age)
+{				  // the last node in path is s, the species for whom we will answer all queries now.
+	int sol = -1; // stores the solution. b is at least the age of s, hence if the immediate ancestor of s has age more than b, 
+	int l = 0;    // then s itself will be the answer
+	int r = path.size()-1;
+	while(l <= r)
+	{ 	
+		int m = (l+r)/2;
+		if(age[path[m]] <= b){
+			r = m-1;
+			sol = m;
+		}
+		else 
+			l = m+1;
+	}
+	return path[sol];
 }
 
 // dfs

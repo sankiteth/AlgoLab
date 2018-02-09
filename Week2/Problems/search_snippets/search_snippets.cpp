@@ -367,7 +367,7 @@ void search_snippets_4()
 		{
 			long long int p_ij; cin >> p_ij;
 
-			p[i].push_back(p_ij);
+			p[i].push_back(p_ij); // position of all occurences of ith word
 		}
 	}
 
@@ -381,7 +381,7 @@ void search_snippets_4()
 
 	for (int i = 0; i < n; ++i)
 	{
-		minHeap.push( make_pair(p[i][0], i) );
+		minHeap.push( make_pair(p[i][0], i) ); // position of first occurence of every word, pushed both in min and max heaps
 		maxHeap.push(p[i][0]);
 	}
 

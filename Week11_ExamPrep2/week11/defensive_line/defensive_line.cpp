@@ -27,9 +27,9 @@ void testcase(){
 	vector<int> sum_ind(n+1, -1);
 	for(int i=1; i<=n; i++){
 
-		int low = 1, high = i+1;
+		int low = 1, high = i;
 		int mid;
-		while(low < high){ // Binary search for partition whose sum is k
+		while(low <= high){ // Binary search for partition whose sum is k
 			mid = low + (high - low)/2;
 			int sum = ps[i] - ps[mid] + v[mid];
 			if(sum == k){
@@ -39,11 +39,11 @@ void testcase(){
 				low = mid+1;
 			}
 			else{
-				high = mid;
+				high = mid-1;
 			}
 		}
 
-		if(low < high){
+		if(low <= high){
 			sum_ind[i] = mid;
 		}
 	}

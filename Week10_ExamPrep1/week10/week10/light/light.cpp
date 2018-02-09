@@ -31,9 +31,10 @@ void testcase(){
 		lamps[i] = IK::Point_2(x, y);
 	}
 
-	int low = 0, high = n; // low denotes the minimum highest lamp index that traps all participants
+	int low = 0, high = n-1;
+	int sol = -1; // smallest index where some participants survive
 	bool some_survived = false;
-	while(low < high){
+	while(low <= high){
 
 		int mid = low + (high-low)/2;
 
@@ -54,18 +55,19 @@ void testcase(){
 
 	  	if(some_survived){ // some participants are not trapped by the lamps in the current triangulation
 	  		low = mid+1;
+	  		sol = mid;
 	  	} else {           // all participants are trapped by the lamps in the current triangulation
-	  		high = mid;
+	  		high = mid-1;
 	  	}
 	}
 
-	if(low == 0){ // the very first lamp traps all participants, hence all survive equal time, so all winner
+	if(sol == -1 || sol == 0){ // the very first lamp traps all participants, hence all survive equal time, so all winner
 		for(int i=0; i<m; i++){
 			std::cout << i << " ";
 		}
 	}else{
 		Triangulation t;
-		t.insert(lamps.begin(), lamps.begin()+low);
+		t.insert(lamps.begin(), lamps.begin()+sol+1);
 
 	  	for(int i=0; i<m; i++){
 	  		Vertex_handle v = t.nearest_vertex(participants[i]);

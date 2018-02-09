@@ -38,7 +38,7 @@ bool solve_lp(int degree){
 		for (int i = 0; i <= degree; i++) {
   			for (int j = 0; j <= degree; j++) {
     			for (int k = 0; k <= degree; k++) {
-      				if (i+j+k > degree){ 
+      				if (i+j+k > degree){
       					break;
       				}
 

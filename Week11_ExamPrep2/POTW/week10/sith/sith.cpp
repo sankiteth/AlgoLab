@@ -21,6 +21,7 @@ typedef CGAL::Delaunay_triangulation_2<K,Tds>               Triangulation;
 typedef Triangulation::Vertex_handle                        VertexTr;
 typedef Triangulation::Finite_vertices_iterator             VertexItTr;
 typedef Triangulation::Edge_circulator                      EdgeCiTr;
+typedef Triangulation::Edge_iterator                      EdgeItTr;
 typedef K::Point_2 P;
 
 // BGL Part
@@ -56,7 +57,7 @@ void testcase() {
 
     // Create BGL Graph based on triangulation
     Graph G(n);
-    for(VertexItTr it = t.finite_vertices_begin(); it != t.finite_vertices_end(); it++){
+    /*for(VertexItTr it = t.finite_vertices_begin(); it != t.finite_vertices_end(); it++){
         EdgeCiTr eit = t.incident_edges(it);
         do{
             if(t.is_infinite(*eit)) continue; 
@@ -67,6 +68,15 @@ void testcase() {
                 add_edge(u->info(),v->info(),G);
             }
         } while(++eit != t.incident_edges(it));
+    }*/
+
+    for(EdgeItTr eit = t.finite_edges_begin(); eit != t.finite_edges_end(); eit++){
+        if(t.segment(eit).squared_length() <= rr){ // part of the graph
+            VertexTr u,v;
+            u = eit->first->vertex((eit->second+1)%3);
+            v = eit->first->vertex((eit->second+2)%3);
+            add_edge(u->info(),v->info(),G);
+        }
     }
 
     // Create connected components

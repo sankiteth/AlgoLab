@@ -52,7 +52,8 @@ void testcase(){
 
     // Binary search for the smallest t.
     int low = 0, high = INT_MAX;
-    while (low < high) {
+    int sol; // It is guarenteed that all agents do make it to shelters
+    while (low <= high) {
         int mid = low + (high-low)/2;
         // Build the bipartite matching graph G’’_t.
         Graph GG(A + C * S);
@@ -79,13 +80,14 @@ void testcase(){
             matching_size += (matemap[a] != NULL_VERTEX);
         }
         if (matching_size == A) { // The agents all make it in time.
-            high = mid;
+            sol = mid;
+            high = mid-1;
         } else { // Some agents do not make it, so we need more time.
             low = mid+1;
         }
     }
 
-    std::cout << low << std::endl;
+    std::cout << sol << std::endl;
 }
 
 int main(){

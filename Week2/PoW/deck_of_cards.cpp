@@ -60,7 +60,7 @@ void deck_of_cards_2()
 {
 	int n, k; cin >> n >> k;
 
-	// all elements non-negetive
+	// all elements non-negetive, hence sliding window works!
 	int x[n];
 	for (int i = 0; i < n; ++i)
 	{

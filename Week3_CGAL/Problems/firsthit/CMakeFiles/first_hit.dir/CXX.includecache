@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/ankit/Desktop/Eth/ThirdSemester/AlgoLab/Week3CGAL/Problems/firsthit/first_hit.cpp
+/home/ankit/Desktop/Eth/ThirdSemester/AlgoLab/Week3_CGAL/Problems/firsthit/first_hit.cpp
 CGAL/Exact_predicates_exact_constructions_kernel.h
 -
 iostream

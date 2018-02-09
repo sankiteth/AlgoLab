@@ -27,12 +27,14 @@ typedef boost::property_map<Graph, boost::edge_weight_t>::type	WeightMap;
 typedef boost::graph_traits<Graph>::edge_iterator    EdgeIt;	// Edge iterator
 typedef boost::graph_traits<Graph>::vertex_iterator    VertexIt;	// Vertex iterator
 
+typedef std::vector<int> V;
+typedef std::vector<V> VV;
+
 int white=0, gray=1, black=2;
 Graph G;
 int total_count = 0;
 
-int DFS_Visit(std::vector<std::vector<int> >& adj_list, int cur, int parent, std::vector<int>& stack, std::vector<int>& color,
-				std::vector<std::vector<int> >& edge_weights){
+int DFS_Visit(VV& adj_list, int cur, int parent, V& stack, V& color, VV& edge_weights){
 	int ret = -1;
 	color[cur] = gray;
 	stack.push_back(cur);
@@ -44,7 +46,8 @@ int DFS_Visit(std::vector<std::vector<int> >& adj_list, int cur, int parent, std
 			if(ret != -1){ // cycle detected, so immediately return
 				return ret;
 			}
-		} else if(color[val] == gray && val!=parent){ // back edge - cycle detected!
+		} 
+		else if(color[val] == gray && val != parent){ // back edge - cycle detected!
 			int max_wt_in_cycle = MINUS_INF;
 			for (int i=stack.size()-1; i>=0; i--){
 				if(i < stack.size()-1){
@@ -65,7 +68,7 @@ int DFS_Visit(std::vector<std::vector<int> >& adj_list, int cur, int parent, std
 	return ret;
 }
 
-int DFS(std::vector<std::vector<int> >& adj_list, std::vector<std::vector<int> >& edge_weights, int s, int n){
+int DFS(VV& adj_list, VV& edge_weights, int s, int n){
 	std::vector<int> stack;
 	std::vector<int> color(n, white);
 	int max_wt_in_cycle = DFS_Visit(adj_list, s, -1, stack, color, edge_weights);
@@ -147,8 +150,7 @@ void testcase(){
 	std::cout << min_wt_ST << std::endl;
 }
 
-int DFS_max_edge_visit(std::vector<std::vector<int> >& adj_list, int source, int cur, int prev, 
-	std::vector<std::vector<int> >& max_weight_edge, std::vector<int>& color, std::vector<std::vector<int> >& edge_weights){
+int DFS_max_edge_visit(VV& adj_list, int source, int cur, int prev, VV& max_weight_edge, V& color, VV& edge_weights){
 	color[cur] = gray;
 	if(prev != -1){
 		int w = edge_weights[prev][cur];
@@ -172,8 +174,7 @@ int DFS_max_edge_visit(std::vector<std::vector<int> >& adj_list, int source, int
 	color[cur] = black;
 }
 
-void DFS_max_edge(std::vector<std::vector<int> >& adj_list, std::vector<std::vector<int> >& edge_weights,
-			 std::vector<std::vector<int> >& max_weight_edge, int n){
+void DFS_max_edge(VV& adj_list, VV& edge_weights, VV& max_weight_edge, int n){
 	for(int i=0; i<n-1; i++){
 		std::vector<int> color(n, white);
 		DFS_max_edge_visit(adj_list, i, i, -1, max_weight_edge, color, edge_weights);
@@ -227,7 +228,7 @@ void approach_2(){
 		adj_list[predmap[i]].push_back(i);
 	}
 
-	std::vector<std::vector<int> > max_weight_edge(n, std::vector<int>(n, -1));
+	std::vector<std::vector<int> > max_weight_edge(n, std::vector<int>(n, -1)); // edge of max wt between any nodes in the MST
 	DFS_max_edge(adj_list, edge_weights, max_weight_edge, n);
 
 

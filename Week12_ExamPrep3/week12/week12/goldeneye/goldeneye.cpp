@@ -42,9 +42,12 @@ void handle_missions() {
 	edges.reserve(3*n);
 	
 	for (EI e = t.finite_edges_begin(); e != t.finite_edges_end(); ++e)
-		edges.push_back(Edge(e->first->vertex((e->second+1)%3)->info(),
-			e->first->vertex((e->second+2)%3)->info(),
-			t.segment(e).squared_length()));
+		edges.push_back(Edge
+							(e->first->vertex((e->second+1)%3)->info(),
+							e->first->vertex((e->second+2)%3)->info(),
+							t.segment(e).squared_length()
+							)
+						);
 
 	std::sort(edges.begin(), edges.end());
 

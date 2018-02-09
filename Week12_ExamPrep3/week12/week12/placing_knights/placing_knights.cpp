@@ -70,7 +70,7 @@ int testcase(){
     int max_matching_size = boost::matching_size(G, boost::make_iterator_property_map(
 							matemap.begin(), boost::get(boost::vertex_index, G)));
 
-    int max_independent_set_size = (num_nodes- num_holes) - max_matching_size; // (num_nodes- num_holes) is the actual number of nodes
+    int max_independent_set_size = (num_nodes-num_holes) - max_matching_size; // (num_nodes-num_holes) is the actual number of nodes
 
     std::cout << max_independent_set_size << std::endl;
 }

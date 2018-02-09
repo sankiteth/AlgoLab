@@ -5,17 +5,42 @@
 #include <CGAL/Gmpq.h>
 #include <vector>
 #include <utility>
+#include <climits>
 
-typedef double ET;
+#define INF std::numeric_limits<double>::max()
+
+typedef CGAL::Gmpq ET;
+//typedef double ET;
 typedef CGAL::Quadratic_program<ET> Program;
 typedef CGAL::Quadratic_program_solution<ET> Solution;
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 typedef CGAL::Delaunay_triangulation_2<K> Delaunay;
 typedef K::Point_2 P;
-typedef std::vector<std::pair<P, int> > VP;
+typedef std::vector<std::pair<P, double> > VP;
+
+int num_sens, num_mpe, num_hench, max_inten;
+
+bool solve_lp(int mid, std::vector<std::vector<ET> >& sens_mpe_dist, VP& sensors){
+	Program lp(CGAL::LARGER, true, 0, false, 0);
+
+		for(int i=0; i<=mid; i++){ // objective function, one variable each for the internsity of each mpe
+			lp.set_c(i, 1);
+		}
+
+		// one constraint for each sensor
+		for(int i=0; i<num_sens; i++){
+			for(int j=0; j<=mid; j++){
+				lp.set_a(j, i, sens_mpe_dist[i][j]);
+			}
+
+			lp.set_b(i, sensors[i].second);
+		}
+
+		Solution sol = CGAL::solve_nonnegative_linear_program(lp, ET());
+		return sol.is_optimal() && (sol.objective_value() <= max_inten);
+}
 
 void testcase(){
-	int num_sens, num_mpe, num_hench, max_inten;
 	std::cin >> num_sens >> num_mpe >> num_hench >> max_inten;
 
 	VP sensors;
@@ -30,7 +55,7 @@ void testcase(){
 	mpes.reserve(num_mpe);
 	for(int i=0; i<num_mpe; i++){
 		P p; std::cin >> p;
-		mpes.push_back(std::make_pair(p, 1<<30));
+		mpes.push_back(std::make_pair(p, INF));
 	}
 
 	std::vector<P> hench;
@@ -65,45 +90,43 @@ void testcase(){
 		}
 	}
 
-	int low=0, high=num_mpe, mid;
-	bool first = true;
-	while(low<high){
-		mid = low + (high-low)/2;
-		Program lp(CGAL::LARGER, true, 0, false, 0);
+	int low=0, high = num_mpe-1;
+	int mid, sol_num = -1;
 
-		for(int i=0; i<=mid; i++){ // objective function, one variable each for the internsity of each mpe
-			lp.set_c(i, 1);
-		}
+	// Find first point where solves successfully
+	while(low <= high){
+    	if (solve_lp(low, sens_mpe_dist, sensors)) {
+			sol_num = low;
+      		high = low;
+      		break;
+    	} 
+    	else {
+      		low = std::max(1, 2 * low);
+    	}
+  	}
 
-		// one cosntraint for each sensor
-		for(int i=0; i<num_sens; i++){
-			for(int j=0; j<=mid; j++){
-				lp.set_a(j, i, sens_mpe_dist[i][j]);
+  	if (low != 2 && low != 1 && low != 0) { // if solved at any of these 3 points, then done
+  		low = int(low / 2) + 1;
+
+		while(low<=high){
+			mid = low + (high-low)/2;
+			
+			if (solve_lp(mid, sens_mpe_dist, sensors)){ // possible with current number of mpes
+				sol_num = mid;
+				high = mid-1;
 			}
-
-			lp.set_b(i, sensors[i].second);
-		}
-
-		/*for(int i=0; i<=mid; i++){
-			lp.set_a(i, num_sens, -1);
-		}
-		lp.set_b(num_sens, -max_inten);*/
-
-		Solution sol = CGAL::solve_nonnegative_linear_program(lp, ET());
-		if (sol.is_infeasible() || sol.objective_value() > max_inten){ // not possible with current number of mpes
-			low = mid+1;
-		}
-		else
-		{
-			high = mid;
+			else
+			{
+				low = mid+1;
+			}
 		}
 	}
 
-	if(high == num_mpe){
+	if(sol_num == -1){
 		std::cout << "impossible\n";
 	}
 	else{
-		std::cout << high+1 << std::endl;
+		std::cout << sol_num+1 << std::endl;
 	}
 
 }

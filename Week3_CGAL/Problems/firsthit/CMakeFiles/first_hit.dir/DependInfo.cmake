@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/ankit/Desktop/Eth/ThirdSemester/AlgoLab/Week3CGAL/Problems/firsthit/first_hit.cpp" "/home/ankit/Desktop/Eth/ThirdSemester/AlgoLab/Week3CGAL/Problems/firsthit/CMakeFiles/first_hit.dir/first_hit.cpp.o"
+  "/home/ankit/Desktop/Eth/ThirdSemester/AlgoLab/Week3_CGAL/Problems/firsthit/first_hit.cpp" "/home/ankit/Desktop/Eth/ThirdSemester/AlgoLab/Week3_CGAL/Problems/firsthit/CMakeFiles/first_hit.dir/first_hit.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

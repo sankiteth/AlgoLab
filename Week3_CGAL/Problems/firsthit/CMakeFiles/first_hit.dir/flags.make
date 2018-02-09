@@ -6,5 +6,5 @@ CXX_FLAGS =  -frounding-math -std=c++11 -O3 -DNDEBUG
 
 CXX_DEFINES = -DCGAL_USE_GMP -DCGAL_USE_MPFR
 
-CXX_INCLUDES = -isystem /usr/local/include -I/home/ankit/Desktop/Eth/ThirdSemester/AlgoLab/Week3CGAL/Problems/firsthit 
+CXX_INCLUDES = -isystem /usr/local/include -I/home/ankit/Desktop/Eth/ThirdSemester/AlgoLab/Week3_CGAL/Problems/firsthit 
 

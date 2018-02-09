@@ -72,6 +72,7 @@ int testcase()
 		{
 			std::swap(u, v);
 		}
+		
 		if (duplicate.find(std::make_tuple(u, v)) == duplicate.end()) // duplicate bricks could be used only once
 		{
 			if (!(u == 0 && v == w)) // full bricks can be as many as possible

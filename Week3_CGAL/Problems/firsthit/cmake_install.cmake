@@ -1,4 +1,4 @@
-# Install script for directory: /home/ankit/Desktop/Eth/ThirdSemester/AlgoLab/Week3CGAL/Problems/firsthit
+# Install script for directory: /home/ankit/Desktop/Eth/ThirdSemester/AlgoLab/Week3_CGAL/Problems/firsthit
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/ankit/Desktop/Eth/ThirdSemester/AlgoLab/Week3CGAL/Problems/firsthit/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/ankit/Desktop/Eth/ThirdSemester/AlgoLab/Week3_CGAL/Problems/firsthit/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

@@ -97,7 +97,7 @@ void testcase(){
 
     for(int i=0; i<extra_left; i++){
     	eaG.addEdge(b+s+i, b+i, 1, 0 + max_c); // dummy edges from extra-left to sailors. This ensures a perfect
-    	eaG.addEdge(source, b+s+i, 1, 0);      // matching bet extra-left and sailors. Now, replace those edges from this perfect
+    	eaG.addEdge(source, b+s+i, 1, 0);      // matching bet. extra-left and sailors. Now, replace those edges from this perfect
     }										   // with the edges in the optimal solution of the original problem.
 
     // source edges

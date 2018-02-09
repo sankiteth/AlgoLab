@@ -279,7 +279,7 @@ bool is_feasible_sol(int s[], int w[], int m, int k)
 
 void move_books_mlogm()
 {
-	int n, m; cin >> n >> m;
+	int n, m; cin >> n >> m; // n= num of friends, m= num of books
 
 	int s[n];
 	int w[m];

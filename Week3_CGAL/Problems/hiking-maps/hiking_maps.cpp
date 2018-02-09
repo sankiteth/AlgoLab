@@ -32,10 +32,10 @@ void find_cover()
 		path.push_back(p);
 	}
 
-	Trs triangles(n);
+	Trs triangles(n); // vector of vector
 	for (std::size_t i = 0; i < n; ++i) 
 	{
-		Pts t;
+		Pts t; // vector
 		for (std::size_t j = 0; j < 6; ++j) 
 		{
 			P p;

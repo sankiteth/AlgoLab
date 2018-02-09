@@ -1,9 +1,9 @@
-#include <CGAL/Exact_predicates_exact_constructions_kernel.h>
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <iostream>
 #include <stdexcept>
 
 typedef long long int LLI;
-typedef CGAL::Exact_predicates_exact_constructions_kernel K;
+typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 typedef K::Point_2 P;
 typedef K::Segment_2 S;
 typedef K::Ray_2 R;

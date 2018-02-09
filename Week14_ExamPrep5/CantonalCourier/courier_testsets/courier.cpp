@@ -1,126 +1,116 @@
+// STL includes
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <utility>
-#include <climits>
+// BGL includes
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/push_relabel_max_flow.hpp>
+#include <boost/graph/edmonds_karp_max_flow.hpp>
 
-using namespace std;
+#define INF std::numeric_limits<int>::max()
 
-#define MINUS_INF numeric_limits<long>::min()
 
-int num_zones, num_jobs;
-vector<int> ticket_cost;
-vector<int> reward;
-vector<int> jobs_num_zones;
-vector<vector<int> > jobs;
-vector<vector<long> > memo;
+// BGL Graph definitions
+// =====================
+// Graph Type with nested interior edge properties for Flow Algorithms
+typedef	boost::adjacency_list_traits<boost::vecS, boost::vecS, boost::directedS> Traits;
+typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property,
+	boost::property<boost::edge_capacity_t, long,
+		boost::property<boost::edge_residual_capacity_t, long,
+			boost::property<boost::edge_reverse_t, Traits::edge_descriptor> > > >	Graph;
+// Interior Property Maps
+typedef	boost::property_map<Graph, boost::edge_capacity_t>::type		EdgeCapacityMap;
+typedef	boost::property_map<Graph, boost::edge_residual_capacity_t>::type	ResidualCapacityMap;
+typedef	boost::property_map<Graph, boost::edge_reverse_t>::type		ReverseEdgeMap;
+typedef	boost::graph_traits<Graph>::vertex_descriptor			Vertex;
+typedef	boost::graph_traits<Graph>::edge_descriptor			Edge;
 
-long f(int zone, int job, vector<bool>& zones_used){
-	//cout << "zone=" << zone << " job=" << job << endl;
-	/*if(memo[zone][job] != -1){
-		return memo[zone][job];
-	}*/
 
-	if(zone == 0 || job == 0){ // 0 jobs or 0 zones to use means no profit
-		return 0;
+// Custom Edge Adder Class, that holds the references
+// to the graph, capacity map and reverse edge map
+// ===================================================
+class EdgeAdder {
+	Graph &G;
+	EdgeCapacityMap	&capacitymap;
+	ReverseEdgeMap	&revedgemap;
+
+public:
+	// to initialize the Object
+	EdgeAdder(Graph & G, EdgeCapacityMap &capacitymap, ReverseEdgeMap &revedgemap):
+		G(G), capacitymap(capacitymap), revedgemap(revedgemap){}
+
+	// to use the Function (add an edge)
+	void addEdge(int from, int to, long capacity) {
+		Edge e, rev_e;
+		bool success;
+		boost::tie(e, success) = boost::add_edge(from, to, G);
+		boost::tie(rev_e, success) = boost::add_edge(to, from, G);
+		capacitymap[e] = capacity;
+		capacitymap[rev_e] = 0; // reverse edge has no capacity!
+		revedgemap[e] = rev_e;
+		revedgemap[rev_e] = e;
 	}
-
-	vector<bool> excluded_zones_used(zones_used);
-	long excluded = f(zone, job-1, excluded_zones_used);
-	long included = 0;
-
-	if(jobs[job].size() == 0){ // this job does not require any zone
-		included = reward[job] + excluded;
-		memo[zone][job] = included;
-		return included;
-	}
-
-	if( jobs[job][ jobs_num_zones[job]-1 ] > zone ){ // do nothing - this job cannot be included now
-		memo[zone][job] = excluded;
-		return excluded;
-	}
-
-	vector<bool> included_zones_used = zones_used;
-	if(jobs[job][ jobs_num_zones[job]-1 ] <= zone){
-		long cost = 0;
-		if(!included_zones_used[zone]){ // zone being used first time
-			cost += ticket_cost[zone];
-			included_zones_used[zone] = true;
-		}
-
-		long sub_problem = f(zone, job-1, included_zones_used);
-
-		bool all_zones_used = true;
-		for(int i=0; i<jobs_num_zones[job]; i++){ // see if all zones needed for this job used
-			if(!included_zones_used[ jobs[job][i] ]){
-				all_zones_used = false;
-				break;
-			}
-		}
-
-		if(all_zones_used)
-			included = sub_problem - cost + reward[job];
-	}
-	/*else{
-		included = f( jobs[job][ jobs_num_zones[job]-1 ], job, included_zones_used);
-	}*/
-
-	if(included >= excluded){
-		zones_used = included_zones_used;
-		memo[zone][job] = included;
-	}
-	else{
-		memo[zone][job] = excluded;
-		zones_used = excluded_zones_used;
-	}
-
-	memo[zone][job] = max(included, excluded);
-	return max(included, excluded);
-}
+};
 
 void testcase(){
-	cin >> num_zones >> num_jobs;
+	int num_zones, num_jobs;
+	std::cin >> num_zones >> num_jobs;
 
-	ticket_cost = vector<int>(num_zones+1);
-	for(int i=1; i<=num_zones; i++){
-		cin >> ticket_cost[i];
+	std::vector<int> ticket_cost(num_zones);
+	for(int i=0; i<num_zones; i++){
+		std::cin >> ticket_cost[i];
 	}
 
-	reward = vector<int>(num_jobs+1);
-	for(int i=1; i<=num_jobs; i++){
-		cin >> reward[i];
+	std::vector<int> job_reward(num_jobs);
+	long sum_rewards = 0;
+	for(int i=0; i<num_jobs; i++){
+		std::cin >> job_reward[i];
+		sum_rewards += job_reward[i];
 	}
 
-	jobs_num_zones = vector<int>(num_jobs+1);
-	jobs = vector<vector<int> >(num_jobs+1, vector<int>());
-	for(int i=1; i<=num_jobs; i++){
-		cin >> jobs_num_zones[i];
-		for(int j=0; j < jobs_num_zones[i]; j++){
-			int z; cin >> z;
-			jobs[i].push_back(z+1); // convert to 1-based index
+	std::vector<std::vector<int> > jobs_to_zones(num_jobs, std::vector<int>());
+	for(int i=0; i<num_jobs; i++){
+		int num_zones_for_current_job;
+		std::cin >> num_zones_for_current_job;
+		for(int j=0; j<num_zones_for_current_job; j++){
+			int z;
+			std::cin >> z;
+			jobs_to_zones[i].push_back(z);
 		}
 	}
 
-	/*cout << "jobs:\n";
-	for(int i=1; i<=num_jobs; i++){
-		for(int j=0; j < jobs[i].size(); j++){
-			cout << jobs[i][j] << " ";
-		}
-		cout << endl;
-	}*/
+	int num_nodes = num_jobs+num_zones+2;
+	Graph G(num_nodes);
+	int source = num_nodes-2;
+	int target = num_nodes-1;
+	EdgeCapacityMap capacitymap = boost::get(boost::edge_capacity, G);
+	ReverseEdgeMap revedgemap = boost::get(boost::edge_reverse, G);
+	ResidualCapacityMap rescapacitymap = boost::get(boost::edge_residual_capacity, G);
+	EdgeAdder eaG(G, capacitymap, revedgemap);
 
-	vector<bool> zones_used(num_zones+1, false);
-	memo = vector<vector<long> >(num_zones+1, vector<long>(num_jobs+1, -1));
-	cout << f(num_zones, num_jobs, zones_used) << endl;
+	for(int i=0; i<num_jobs; i++){
+		eaG.addEdge(source, i, job_reward[i]); // source to job edges of reward capacity
+
+		for(int j=0; j<jobs_to_zones[i].size(); j++){ // jobs to zones edges of infinite capacity
+			eaG.addEdge(i, num_jobs+jobs_to_zones[i][j], INF);
+		}
+	}
+
+	for(int i=0; i<num_zones; i++){
+		eaG.addEdge(num_jobs+i, target, ticket_cost[i]); // zones to target edges of ticket cost capacity
+	}
+
+	long flow = boost::push_relabel_max_flow(G, source, target); // max flow is equal to min cut; min cut = sum of cost of zone
+																 // tickets bought and rewards of jobs not taken
+	std::cout << sum_rewards - flow << std::endl; // Actual profit = sum of all job rewards - (sum of rewards of jobs not taken 
+												  // + ticket cost of zones visited)
 }
 
 int main(){
-	ios_base::sync_with_stdio(true);
-
-	int t; cin >> t;
+	std::ios_base::sync_with_stdio(false);
+	int t; std::cin >> t;
 	for(int i=0; i<t; i++){
 		testcase();
 	}
-
 	return 0;
 }

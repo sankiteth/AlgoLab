@@ -89,14 +89,18 @@ public:
 	IK::Point_2 p;
 	int z;
 	Agent(int x_, int y_, int z_): p( IK::Point_2(x_,y_) ), z(z_) {}
-	bool operator<(Agent& a1){
+	/*bool operator<(Agent& a1){
 		return this->z <= a1.z;
-	}
+	}*/
 
 	Agent() {
 		this->z = INF;
 	}
 };
+
+bool compare(Agent a1, Agent a2) {
+	return a1.z < a2.z;
+}
 
 void testcase_LP(){
 	int holmes_fee, min_where, min_who, min_how;
@@ -120,7 +124,8 @@ void testcase_LP(){
 		std::cin >> x >> y >> z;
 		a.push_back(Agent(x,y,z));
 	}
-	//std::sort(a.begin(), a.end());
+
+	std::sort(a.begin(), a.end(), compare);
 
 	Triangulation t;
 	t.insert(g_loc.begin(), g_loc.end());
@@ -147,6 +152,7 @@ void testcase_LP(){
 	// variable. Number of constraints = 4
 	Program lp(CGAL::LARGER, true, 0, false, 0);
 	int var_index = 0;
+
 	for(int i=0; i<num_agents; i++){
 		int target_gang = spying[i];
 		if(closest_spy[ target_gang ] != i){ // check if current agent spies the gang member
@@ -160,6 +166,8 @@ void testcase_LP(){
 		lp.set_u(var_index, true, 24); // upper bound for number of hours for each watch is 24 hours
 		var_index++;
 	}
+
+	//std::cout << "var_index=" << var_index << std::endl;
 
 	lp.set_b(0, min_where);
 	lp.set_b(1, min_who);
@@ -302,7 +310,7 @@ int main(){
 
 	int t; std::cin >> t;
 	for(int i=0; i<t; i++){
-		testcase_MCMF();
+		testcase_LP();
 	}
 
 	return 0;
